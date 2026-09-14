@@ -1,5 +1,23 @@
 <!DOCTYPE html>
 <html>
-<head><title>Peer Skill-Swap Board</title></head>
-<body><h1>Peer Skill-Swap Board</h1></body>
+<head>
+    <title>Peer Skill-Swap Board</title>
+    <script src="https://cdn.jsdelivr.net/npm/sockjs-client@1/dist/sockjs.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@stomp/stompjs@7/bundles/stomp.umd.min.js"></script>
+</head>
+<body>
+<h1>Peer Skill-Swap Board</h1>
+
+<div>
+    <label>Your user ID: <input type="number" id="userIdInput" /></label>
+    <button onclick="connectNotifications(document.getElementById('userIdInput').value)">
+        Connect
+    </button>
+</div>
+
+<h2>Live Notifications</h2>
+<ul id="notifications"></ul>
+
+<script src="notifications.js"></script>
+</body>
 </html>
