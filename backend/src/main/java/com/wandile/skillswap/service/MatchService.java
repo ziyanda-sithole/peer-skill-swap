@@ -18,11 +18,14 @@ public class MatchService {
     private final PostRepository postRepository;
     private final UserRepository userRepository;
 
+    private final NotificationService notificationService;
+
     public MatchService(MatchRepository matchRepository, PostRepository postRepository,
-                        UserRepository userRepository) {
+                        UserRepository userRepository, NotificationService notificationService) {
         this.matchRepository = matchRepository;
         this.postRepository = postRepository;
         this.userRepository = userRepository;
+        this.notificationService = notificationService;
     }
 
     public MatchResponse respond(Long postId, Long responderId, RespondRequest request) {
@@ -36,7 +39,9 @@ public class MatchService {
         }
 
         Match saved = matchRepository.save(new Match(post, responder, request.getMessage()));
-        return toResponse(saved);
+        MatchResponse response = toResponse(saved);
+        notificationService.notifyNewMatch(post.getUser().getId(), response);
+        return response;
     }
 
     public MatchResponse accept(Long matchId, Long userId) {
@@ -48,7 +53,10 @@ public class MatchService {
         }
 
         match.setStatus(MatchStatus.ACCEPTED);
-        return toResponse(matchRepository.save(match));
+        Match saved = matchRepository.save(match);
+        MatchResponse response = toResponse(saved);
+        notificationService.notifyMatchAccepted(match.getResponder().getId(), response);
+        return response;
     }
 
     public List<MatchResponse> listForUser(Long userId) {
