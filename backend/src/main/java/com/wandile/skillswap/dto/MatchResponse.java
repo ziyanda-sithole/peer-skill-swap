@@ -9,20 +9,24 @@ public class MatchResponse {
     private Long postId;
     private String skillTag;
     private PostType postType;
+    private Long posterId;
     private String posterName;
+    private Long responderId;
     private String responderName;
     private String message;
     private MatchStatus status;
     private Instant createdAt;
 
     public MatchResponse(Long id, Long postId, String skillTag, PostType postType,
-                         String posterName, String responderName, String message,
-                         MatchStatus status, Instant createdAt) {
+                         Long posterId, String posterName, Long responderId, String responderName,
+                         String message, MatchStatus status, Instant createdAt) {
         this.id = id;
         this.postId = postId;
         this.skillTag = skillTag;
         this.postType = postType;
+        this.posterId = posterId;
         this.posterName = posterName;
+        this.responderId = responderId;
         this.responderName = responderName;
         this.message = message;
         this.status = status;
@@ -33,7 +37,9 @@ public class MatchResponse {
     public Long getPostId() { return postId; }
     public String getSkillTag() { return skillTag; }
     public PostType getPostType() { return postType; }
+    public Long getPosterId() { return posterId; }
     public String getPosterName() { return posterName; }
+    public Long getResponderId() { return responderId; }
     public String getResponderName() { return responderName; }
     public String getMessage() { return message; }
     public MatchStatus getStatus() { return status; }

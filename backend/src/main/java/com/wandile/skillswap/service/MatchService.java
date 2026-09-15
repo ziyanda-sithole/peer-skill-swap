@@ -70,7 +70,8 @@ public class MatchService {
     private MatchResponse toResponse(Match match) {
         Post post = match.getPost();
         return new MatchResponse(match.getId(), post.getId(), post.getSkillTag(), post.getType(),
-                post.getUser().getName(), match.getResponder().getName(), match.getMessage(),
-                match.getStatus(), match.getCreatedAt());
+                post.getUser().getId(), post.getUser().getName(),
+                match.getResponder().getId(), match.getResponder().getName(),
+                match.getMessage(), match.getStatus(), match.getCreatedAt());
     }
 }
