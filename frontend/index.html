@@ -9,8 +9,11 @@
 <h1>Peer Skill-Swap Board</h1>
 
 <div>
+    <label>Backend URL: <input type="text" id="backendUrlInput" value="http://localhost:8080" size="40" /></label>
+</div>
+<div>
     <label>Your user ID: <input type="number" id="userIdInput" /></label>
-    <button onclick="connectNotifications(document.getElementById('userIdInput').value)">
+    <button onclick="connectNotifications(document.getElementById('backendUrlInput').value, document.getElementById('userIdInput').value)">
         Connect
     </button>
 </div>

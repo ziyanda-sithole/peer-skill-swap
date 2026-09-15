@@ -1,5 +1,5 @@
-function connectNotifications(userId) {
-  const socket = new SockJS('http://localhost:8080/ws');
+function connectNotifications(backendUrl, userId) {
+  const socket = new SockJS(backendUrl + '/ws');
   const stompClient = new StompJs.Client({
     webSocketFactory: () => socket,
     onConnect: () => {
