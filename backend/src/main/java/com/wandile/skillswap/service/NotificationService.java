@@ -26,6 +26,12 @@ public class NotificationService {
                 match));
     }
 
+    public void notifyNewChatMessage(Long userId, Long sessionId, String sessionTitle, String senderName, String preview) {
+        send(userId, new NotificationPayload("NEW_CHAT_MESSAGE",
+                senderName + " in \"" + sessionTitle + "\": " + preview,
+                java.util.Map.of("sessionId", sessionId)));
+    }
+
     private void send(Long userId, NotificationPayload payload) {
         messagingTemplate.convertAndSend("/topic/notifications/" + userId, payload);
     }
