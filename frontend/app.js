@@ -18,6 +18,15 @@ async function api(path, method = 'GET', body = null) {
   return data;
 }
 
+function showToast(message) {
+  const container = document.getElementById('toastContainer');
+  const toast = document.createElement('div');
+  toast.className = 'toast';
+  toast.textContent = message;
+  container.appendChild(toast);
+  setTimeout(() => toast.remove(), 5000);
+}
+
 function setCurrentUser(user) {
   currentUser = user;
   localStorage.setItem('skillswapUser', JSON.stringify(user));
@@ -150,6 +159,7 @@ function connectNotifications() {
       stompClient.subscribe('/topic/notifications/' + currentUser.id, (message) => {
         const payload = JSON.parse(message.body);
         showNotification(payload);
+        showToast(payload.message);
         loadPosts();
         loadMatches();
       });
