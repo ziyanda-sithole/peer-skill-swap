@@ -167,3 +167,12 @@ button.secondary:hover { background: var(--border-soft); }
 
 .member-row { display: flex; align-items: center; gap: 8px; margin-bottom: 6px; }
 .badge.role { background: var(--muted); color: var(--bg); }
+
+.resource-card {
+  border: 1px solid var(--border-soft);
+  border-radius: 6px;
+  padding: 12px;
+  margin-bottom: 8px;
+}
+.resource-card p { margin: 6px 0; }
+.resource-card a { color: var(--primary); }

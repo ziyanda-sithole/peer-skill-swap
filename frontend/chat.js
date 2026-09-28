@@ -58,6 +58,7 @@ async function openRoom(session) {
   }
 
   loadMembers();
+  loadResourcesForRoom(session);
 }
 
 function closeRoom() {
