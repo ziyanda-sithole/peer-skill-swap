@@ -2,6 +2,7 @@
 <html>
 <head>
     <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>Peer Skill-Swap Board</title>
     <link rel="stylesheet" href="style.css" />
     <script src="https://cdn.jsdelivr.net/npm/sockjs-client@1/dist/sockjs.min.js"></script>
@@ -9,6 +10,7 @@
 </head>
 <body>
 <div id="toastContainer"></div>
+
 <header>
     <h1>Peer Skill-Swap Board</h1>
     <div class="header-actions">
@@ -39,26 +41,31 @@
 
 <section id="appSection" hidden>
     <div class="panel">
-        <h2>Post a skill</h2>
-        <form id="postForm">
-            <select id="postType" required>
-                <option value="OFFER">I can help with...</option>
-                <option value="NEED">I need help with...</option>
+        <h2>Host a study session</h2>
+        <form id="sessionForm">
+            <input type="text" id="sessionTitle" placeholder="Title (e.g. Recursion Study Group)" required />
+            <input type="text" id="sessionTopic" placeholder="Curriculum topic (e.g. Recursion)" required />
+            <textarea id="sessionDescription" placeholder="What will you break down together?" required></textarea>
+            <select id="sessionVisibility">
+                <option value="PUBLIC">Public (listed on the board)</option>
+                <option value="PRIVATE">Private (not listed)</option>
             </select>
-            <input type="text" id="postSkillTag" placeholder="Skill (e.g. Java)" required />
-            <textarea id="postDescription" placeholder="Describe it" required></textarea>
-            <button type="submit">Post</button>
+            <select id="sessionType">
+                <option value="GROUP">Group session</option>
+                <option value="ONE_ON_ONE">One-on-one</option>
+            </select>
+            <button type="submit">Create session</button>
         </form>
     </div>
 
     <div class="panel">
         <h2>Board</h2>
-        <div id="postsList"></div>
+        <div id="boardList"></div>
     </div>
 
     <div class="panel">
-        <h2>My Matches</h2>
-        <div id="matchesList"></div>
+        <h2>My Sessions</h2>
+        <div id="mySessionsList"></div>
     </div>
 
     <div class="panel">
@@ -68,6 +75,7 @@
 </section>
 
 <script src="theme.js"></script>
+<script src="sessions.js"></script>
 <script src="app.js"></script>
 </body>
 </html>

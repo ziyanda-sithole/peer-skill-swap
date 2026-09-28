@@ -122,3 +122,20 @@ button.secondary:hover { background: var(--border-soft); }
   max-width: 320px;
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.25);
 }
+
+.session-card {
+  border: 1px solid var(--border-soft);
+  border-radius: 6px;
+  padding: 12px;
+  margin-bottom: 8px;
+}
+.session-card p { margin: 8px 0; }
+.badge.PUBLIC { background: var(--offer); }
+.badge.PRIVATE { background: var(--need); }
+.badge.type { background: var(--primary); margin-left: 4px; }
+.request-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 8px;
+}
