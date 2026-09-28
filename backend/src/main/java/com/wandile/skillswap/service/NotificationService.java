@@ -35,4 +35,18 @@ public class NotificationService {
     private void send(Long userId, NotificationPayload payload) {
         messagingTemplate.convertAndSend("/topic/notifications/" + userId, payload);
     }
+
+    public void notifyJoinRequest(Long userId, Long sessionId, String sessionTitle, String requesterName) {
+        send(userId, new NotificationPayload("JOIN_REQUEST",
+                requesterName + " asked to join \"" + sessionTitle + "\"",
+                java.util.Map.of("sessionId", sessionId)));
+    }
+
+    public void notifyMembershipDecision(Long userId, Long sessionId, String sessionTitle, boolean approved) {
+        String message = approved
+                ? "You're in! Your request to join \"" + sessionTitle + "\" was approved"
+                : "Your request to join \"" + sessionTitle + "\" was declined";
+        send(userId, new NotificationPayload(approved ? "REQUEST_APPROVED" : "REQUEST_DECLINED",
+                message, java.util.Map.of("sessionId", sessionId)));
+    }
 }

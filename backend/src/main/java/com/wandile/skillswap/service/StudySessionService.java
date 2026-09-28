@@ -17,13 +17,16 @@ public class StudySessionService {
     private final StudySessionRepository sessionRepository;
     private final SessionMembershipRepository membershipRepository;
     private final UserRepository userRepository;
+    private final NotificationService notificationService;
 
     public StudySessionService(StudySessionRepository sessionRepository,
                                SessionMembershipRepository membershipRepository,
-                               UserRepository userRepository) {
+                               UserRepository userRepository,
+                               NotificationService notificationService) {
         this.sessionRepository = sessionRepository;
         this.membershipRepository = membershipRepository;
         this.userRepository = userRepository;
+        this.notificationService = notificationService;
     }
 
     public SessionResponse createSession(Long hostId, CreateSessionRequest request) {
@@ -61,6 +64,13 @@ public class StudySessionService {
 
         SessionMembership membership = membershipRepository.save(
                 new SessionMembership(session, user, MembershipRole.MEMBER, MembershipStatus.PENDING));
+
+        for (SessionMembership m : membershipRepository.findBySession_IdAndStatus(sessionId, MembershipStatus.APPROVED)) {
+            if (m.getRole() == MembershipRole.HOST || m.getRole() == MembershipRole.ADMIN) {
+                notificationService.notifyJoinRequest(m.getUser().getId(), sessionId, session.getTitle(), user.getName());
+            }
+        }
+
         return toMembershipResponse(membership);
     }
 
@@ -71,7 +81,9 @@ public class StudySessionService {
                 .orElseThrow(() -> new IllegalArgumentException("Membership not found"));
 
         membership.setStatus(approve ? MembershipStatus.APPROVED : MembershipStatus.DECLINED);
-        return toMembershipResponse(membershipRepository.save(membership));
+        SessionMembership saved = membershipRepository.save(membership);
+        notificationService.notifyMembershipDecision(targetUserId, sessionId, saved.getSession().getTitle(), approve);
+        return toMembershipResponse(saved);
     }
 
     public void leaveSession(Long sessionId, Long userId) {
