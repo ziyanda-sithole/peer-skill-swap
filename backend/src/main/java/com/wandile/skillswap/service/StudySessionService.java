@@ -77,6 +77,9 @@ public class StudySessionService {
     public void leaveSession(Long sessionId, Long userId) {
         SessionMembership membership = membershipRepository.findBySession_IdAndUser_Id(sessionId, userId)
                 .orElseThrow(() -> new IllegalArgumentException("Membership not found"));
+        if (membership.getRole() == MembershipRole.HOST) {
+            throw new IllegalArgumentException("The host can't leave their own session");
+        }
         membershipRepository.delete(membership);
     }
 
