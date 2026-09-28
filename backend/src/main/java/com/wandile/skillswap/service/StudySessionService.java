@@ -105,4 +105,9 @@ public class StudySessionService {
                 membership.getUser().getId(), membership.getUser().getName(),
                 membership.getRole(), membership.getStatus(), membership.getCreatedAt());
     }
+
+    public List<MembershipResponse> listMyMemberships(Long userId) {
+        return membershipRepository.findByUser_Id(userId)
+                .stream().map(this::toMembershipResponse).toList();
+    }
 }

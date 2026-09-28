@@ -65,4 +65,9 @@ public class StudySessionController {
                                                                     @RequestParam Long actingUserId) {
         return ResponseEntity.ok(sessionService.listPendingRequests(sessionId, actingUserId));
     }
+
+    @GetMapping("/memberships")
+    public ResponseEntity<List<MembershipResponse>> myMemberships(@RequestParam Long userId) {
+        return ResponseEntity.ok(sessionService.listMyMemberships(userId));
+    }
 }
