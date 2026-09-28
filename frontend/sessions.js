@@ -50,6 +50,9 @@ function renderMySessions(sessions, membershipBySession) {
     const role = membership ? membership.role : 'MEMBER';
     const card = sessionCard(session);
     card.appendChild(el('div', 'muted', 'Your role: ' + role));
+    const openBtn = el('button', null, 'Open');
+    openBtn.onclick = () => openRoom(session);
+    card.appendChild(openBtn);
 
     if (role === 'HOST' || role === 'ADMIN') {
       const requestsBox = el('div');
@@ -124,6 +127,7 @@ async function leaveSession(sessionId) {
   if (!confirm('Leave this session?')) return;
   try {
     await api('/api/sessions/' + sessionId + '/leave?userId=' + currentUser.id, 'DELETE');
+    if (openSession && openSession.id === sessionId) closeRoom();
     loadSessions();
   } catch (err) {
     showToast(err.message);

@@ -139,3 +139,28 @@ button.secondary:hover { background: var(--border-soft); }
   gap: 8px;
   margin-top: 8px;
 }
+
+.room-header { display: flex; justify-content: space-between; align-items: center; }
+.chat-messages {
+  height: 260px;
+  overflow-y: auto;
+  border: 1px solid var(--border-soft);
+  border-radius: 6px;
+  padding: 8px;
+  margin-bottom: 8px;
+}
+.chat-message {
+  margin-bottom: 8px;
+  padding: 6px 10px;
+  border-radius: 6px;
+  background: var(--bg);
+}
+.chat-message.mine { border-left: 3px solid var(--primary); }
+.chat-form, .resource-form {
+  flex-direction: row;
+  padding: 0;
+  border: none;
+  background: transparent;
+}
+.chat-form input, .resource-form input { flex: 1; }
+.session-card button { margin-right: 8px; margin-top: 4px; }

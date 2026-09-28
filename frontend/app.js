@@ -43,6 +43,7 @@ function setCurrentUser(user) {
 }
 
 function logout() {
+  closeRoom();
   currentUser = null;
   localStorage.removeItem('skillswapUser');
   if (stompClient) stompClient.deactivate();
@@ -83,18 +84,21 @@ document.getElementById('loginForm').addEventListener('submit', async (e) => {
 function connectNotifications() {
   if (!currentUser) return;
   if (stompClient) stompClient.deactivate();
-  const socket = new SockJS(BACKEND_URL + '/ws');
   stompClient = new StompJs.Client({
-    webSocketFactory: () => socket,
+    webSocketFactory: () => new SockJS(BACKEND_URL + '/ws'),
     onConnect: () => {
       stompClient.subscribe('/topic/notifications/' + currentUser.id, (message) => {
         const payload = JSON.parse(message.body);
+        const isOpenChat = payload.type === 'NEW_CHAT_MESSAGE' && openSession
+          && payload.data && payload.data.sessionId === openSession.id;
+        if (isOpenChat) return;
         showNotification(payload);
         showToast(payload.message);
         if (['JOIN_REQUEST', 'REQUEST_APPROVED', 'REQUEST_DECLINED'].includes(payload.type)) {
           loadSessions();
         }
       });
+      subscribeToChat();
     },
   });
   stompClient.activate();
