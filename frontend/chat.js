@@ -56,6 +56,8 @@ async function openRoom(session) {
   if (!subscribeToChat()) {
     showToast('Live chat is still connecting. New messages will appear once it is ready.');
   }
+
+  loadMembers();
 }
 
 function closeRoom() {
@@ -84,3 +86,38 @@ document.getElementById('chatForm').addEventListener('submit', async (e) => {
     showToast(err.message);
   }
 });
+
+async function loadMembers() {
+  if (!openSession) return;
+  const container = document.getElementById('membersList');
+  try {
+    const members = await api('/api/sessions/' + openSession.id + '/members?userId=' + currentUser.id);
+    container.replaceChildren();
+    const me = members.find((m) => m.userId === currentUser.id);
+    members.forEach((member) => {
+      const row = el('div', 'member-row');
+      row.appendChild(el('span', null, member.userName));
+      row.appendChild(el('span', 'badge role', member.role));
+      if (me && me.role === 'HOST' && member.role === 'MEMBER') {
+        const btn = el('button', 'secondary', 'Make admin');
+        btn.onclick = () => promoteMember(member.userId);
+        row.appendChild(btn);
+      }
+      container.appendChild(row);
+    });
+  } catch (err) {
+    showToast(err.message);
+  }
+}
+
+async function promoteMember(userId) {
+  try {
+    await api('/api/sessions/' + openSession.id + '/members/' + userId
+      + '/promote?actingUserId=' + currentUser.id, 'POST');
+    showToast('Member promoted to admin');
+    loadMembers();
+    loadSessions();
+  } catch (err) {
+    showToast(err.message);
+  }
+}

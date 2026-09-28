@@ -164,3 +164,6 @@ button.secondary:hover { background: var(--border-soft); }
 }
 .chat-form input, .resource-form input { flex: 1; }
 .session-card button { margin-right: 8px; margin-top: 4px; }
+
+.member-row { display: flex; align-items: center; gap: 8px; margin-bottom: 6px; }
+.badge.role { background: var(--muted); color: var(--bg); }
