@@ -110,4 +110,32 @@ public class StudySessionService {
         return membershipRepository.findByUser_Id(userId)
                 .stream().map(this::toMembershipResponse).toList();
     }
+
+    public List<MembershipResponse> listMembers(Long sessionId, Long requestingUserId) {
+        SessionMembership requester = membershipRepository.findBySession_IdAndUser_Id(sessionId, requestingUserId)
+                .orElseThrow(() -> new IllegalArgumentException("You are not a member of this session"));
+        if (requester.getStatus() != MembershipStatus.APPROVED) {
+            throw new IllegalArgumentException("Your membership is not approved yet");
+        }
+        return membershipRepository.findBySession_IdAndStatus(sessionId, MembershipStatus.APPROVED)
+                .stream().map(this::toMembershipResponse).toList();
+    }
+
+    public MembershipResponse promoteToAdmin(Long sessionId, Long targetUserId, Long actingUserId) {
+        SessionMembership acting = membershipRepository.findBySession_IdAndUser_Id(sessionId, actingUserId)
+                .orElseThrow(() -> new IllegalArgumentException("You are not a member of this session"));
+        if (acting.getRole() != MembershipRole.HOST) {
+            throw new IllegalArgumentException("Only the host can promote members to admin");
+        }
+        SessionMembership target = membershipRepository.findBySession_IdAndUser_Id(sessionId, targetUserId)
+                .orElseThrow(() -> new IllegalArgumentException("Membership not found"));
+        if (target.getStatus() != MembershipStatus.APPROVED) {
+            throw new IllegalArgumentException("Only approved members can be promoted");
+        }
+        if (target.getRole() == MembershipRole.HOST) {
+            throw new IllegalArgumentException("The host is already the top role");
+        }
+        target.setRole(MembershipRole.ADMIN);
+        return toMembershipResponse(membershipRepository.save(target));
+    }
 }

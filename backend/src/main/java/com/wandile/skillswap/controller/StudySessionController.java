@@ -70,4 +70,16 @@ public class StudySessionController {
     public ResponseEntity<List<MembershipResponse>> myMemberships(@RequestParam Long userId) {
         return ResponseEntity.ok(sessionService.listMyMemberships(userId));
     }
+
+    @GetMapping("/{sessionId}/members")
+    public ResponseEntity<List<MembershipResponse>> members(@PathVariable Long sessionId,
+                                                            @RequestParam Long userId) {
+        return ResponseEntity.ok(sessionService.listMembers(sessionId, userId));
+    }
+
+    @PostMapping("/{sessionId}/members/{userId}/promote")
+    public ResponseEntity<MembershipResponse> promote(@PathVariable Long sessionId, @PathVariable Long userId,
+                                                      @RequestParam Long actingUserId) {
+        return ResponseEntity.ok(sessionService.promoteToAdmin(sessionId, userId, actingUserId));
+    }
 }
