@@ -4,6 +4,7 @@ import com.wandile.skillswap.dto.CreateSessionRequest;
 import com.wandile.skillswap.dto.MembershipResponse;
 import com.wandile.skillswap.dto.SessionResponse;
 import com.wandile.skillswap.service.StudySessionService;
+import com.wandile.skillswap.dto.InviteRequest;
 import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -81,5 +82,27 @@ public class StudySessionController {
     public ResponseEntity<MembershipResponse> promote(@PathVariable Long sessionId, @PathVariable Long userId,
                                                       @RequestParam Long actingUserId) {
         return ResponseEntity.ok(sessionService.promoteToAdmin(sessionId, userId, actingUserId));
+    }
+
+    @PostMapping("/{sessionId}/invite")
+    public ResponseEntity<MembershipResponse> invite(@PathVariable Long sessionId,
+                                                     @RequestParam Long actingUserId,
+                                                     @Valid @RequestBody InviteRequest request) {
+        return ResponseEntity.ok(sessionService.inviteMember(sessionId, actingUserId, request));
+    }
+
+    @PostMapping("/{sessionId}/invite/accept")
+    public ResponseEntity<MembershipResponse> acceptInvite(@PathVariable Long sessionId, @RequestParam Long userId) {
+        return ResponseEntity.ok(sessionService.respondToInvite(sessionId, userId, true));
+    }
+
+    @PostMapping("/{sessionId}/invite/decline")
+    public ResponseEntity<MembershipResponse> declineInvite(@PathVariable Long sessionId, @RequestParam Long userId) {
+        return ResponseEntity.ok(sessionService.respondToInvite(sessionId, userId, false));
+    }
+
+    @GetMapping("/invites")
+    public ResponseEntity<List<MembershipResponse>> myInvites(@RequestParam Long userId) {
+        return ResponseEntity.ok(sessionService.listMyInvites(userId));
     }
 }
