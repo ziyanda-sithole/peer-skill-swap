@@ -116,8 +116,9 @@ public class StudySessionService {
     }
 
     private MembershipResponse toMembershipResponse(SessionMembership membership) {
-        return new MembershipResponse(membership.getId(), membership.getSession().getId(),
-                membership.getUser().getId(), membership.getUser().getName(),
+        StudySession session = membership.getSession();
+        return new MembershipResponse(membership.getId(), session.getId(), session.getTitle(),
+                session.getHost().getName(), membership.getUser().getId(), membership.getUser().getName(),
                 membership.getRole(), membership.getStatus(), membership.getCreatedAt());
     }
 

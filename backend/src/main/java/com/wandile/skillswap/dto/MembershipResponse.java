@@ -7,16 +7,21 @@ import java.time.Instant;
 public class MembershipResponse {
     private Long id;
     private Long sessionId;
+    private String sessionTitle;
+    private String hostName;
     private Long userId;
     private String userName;
     private MembershipRole role;
     private MembershipStatus status;
     private Instant createdAt;
 
-    public MembershipResponse(Long id, Long sessionId, Long userId, String userName,
-                              MembershipRole role, MembershipStatus status, Instant createdAt) {
+    public MembershipResponse(Long id, Long sessionId, String sessionTitle, String hostName,
+                              Long userId, String userName, MembershipRole role, MembershipStatus status,
+                              Instant createdAt) {
         this.id = id;
         this.sessionId = sessionId;
+        this.sessionTitle = sessionTitle;
+        this.hostName = hostName;
         this.userId = userId;
         this.userName = userName;
         this.role = role;
@@ -26,6 +31,8 @@ public class MembershipResponse {
 
     public Long getId() { return id; }
     public Long getSessionId() { return sessionId; }
+    public String getSessionTitle() { return sessionTitle; }
+    public String getHostName() { return hostName; }
     public Long getUserId() { return userId; }
     public String getUserName() { return userName; }
     public MembershipRole getRole() { return role; }
