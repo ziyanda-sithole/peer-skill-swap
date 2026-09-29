@@ -94,7 +94,7 @@ function connectNotifications() {
         if (isOpenChat) return;
         showNotification(payload);
         showToast(payload.message);
-        if (['JOIN_REQUEST', 'REQUEST_APPROVED', 'REQUEST_DECLINED'].includes(payload.type)) {
+        if (['JOIN_REQUEST', 'REQUEST_APPROVED', 'REQUEST_DECLINED', 'SESSION_INVITE', 'INVITE_ACCEPTED', 'INVITE_DECLINED'].includes(payload.type)) {
           loadSessions();
         }
       });

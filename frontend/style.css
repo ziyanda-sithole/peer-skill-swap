@@ -176,3 +176,7 @@ button.secondary:hover { background: var(--border-soft); }
 }
 .resource-card p { margin: 6px 0; }
 .resource-card a { color: var(--primary); }
+
+.invite-row { display: flex; align-items: center; gap: 8px; margin-bottom: 6px; }
+.invite-form { flex-direction: row; padding: 0; border: none; background: transparent; margin-top: 8px; gap: 6px; }
+.invite-form input { flex: 1; }

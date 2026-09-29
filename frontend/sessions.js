@@ -58,6 +58,7 @@ function renderMySessions(sessions, membershipBySession) {
       const requestsBox = el('div');
       card.appendChild(requestsBox);
       loadPendingRequests(session.id, requestsBox);
+      card.appendChild(inviteForm(session));
     }
     if (role !== 'HOST') {
       const leaveBtn = el('button', 'secondary', 'Leave');
@@ -98,6 +99,7 @@ async function loadSessions() {
     memberships.forEach((m) => { membershipBySession[m.sessionId] = m; });
     renderBoard(publicSessions, membershipBySession);
     renderMySessions(mySessions, membershipBySession);
+    loadInvites();
   } catch (err) {
     showToast('Could not load sessions: ' + err.message);
   }
@@ -137,7 +139,7 @@ async function leaveSession(sessionId) {
 document.getElementById('sessionForm').addEventListener('submit', async (e) => {
   e.preventDefault();
   try {
-    await api('/api/sessions?hostId=' + currentUser.id, 'POST', {
+    const created = await api('/api/sessions?hostId=' + currentUser.id, 'POST', {
       title: document.getElementById('sessionTitle').value,
       topic: document.getElementById('sessionTopic').value,
       description: document.getElementById('sessionDescription').value,
@@ -145,9 +147,71 @@ document.getElementById('sessionForm').addEventListener('submit', async (e) => {
       type: document.getElementById('sessionType').value,
     });
     e.target.reset();
-    showToast('Session created');
+    showToast(created.visibility === 'PRIVATE'
+      ? 'Private session created — invite someone from My Sessions'
+      : 'Session created');
     loadSessions();
   } catch (err) {
     showToast(err.message);
   }
 });
+
+function inviteForm(session) {
+  const form = el('form', 'invite-form');
+  const input = document.createElement('input');
+  input.type = 'email';
+  input.placeholder = 'Invite by email';
+  input.required = true;
+  const btn = el('button', null, 'Invite');
+  btn.type = 'submit';
+  form.append(input, btn);
+  form.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    try {
+      await api('/api/sessions/' + session.id + '/invite?actingUserId=' + currentUser.id, 'POST', {
+        email: input.value,
+      });
+      showToast('Invite sent');
+      input.value = '';
+    } catch (err) {
+      showToast(err.message);
+    }
+  });
+  return form;
+}
+
+async function loadInvites() {
+  if (!currentUser) return;
+  const container = document.getElementById('invitesList');
+  try {
+    const invites = await api('/api/sessions/invites?userId=' + currentUser.id);
+    container.replaceChildren();
+    if (invites.length === 0) {
+      container.appendChild(el('p', 'muted', 'No pending invites.'));
+      return;
+    }
+    invites.forEach((invite) => {
+      const row = el('div', 'invite-row');
+      row.appendChild(el('span', null, invite.sessionTitle + ' — invited by ' + invite.hostName));
+      const acceptBtn = el('button', null, 'Accept');
+      acceptBtn.onclick = () => respondToInvite(invite.sessionId, true);
+      const declineBtn = el('button', 'secondary', 'Decline');
+      declineBtn.onclick = () => respondToInvite(invite.sessionId, false);
+      row.append(acceptBtn, declineBtn);
+      container.appendChild(row);
+    });
+  } catch (err) {
+    showToast('Could not load invites: ' + err.message);
+  }
+}
+
+async function respondToInvite(sessionId, accept) {
+  try {
+    await api('/api/sessions/' + sessionId + '/invite/' + (accept ? 'accept' : 'decline')
+      + '?userId=' + currentUser.id, 'POST');
+    loadInvites();
+    loadSessions();
+  } catch (err) {
+    showToast(err.message);
+  }
+}
