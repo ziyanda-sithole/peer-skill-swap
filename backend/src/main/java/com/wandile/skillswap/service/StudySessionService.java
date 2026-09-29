@@ -61,6 +61,7 @@ public class StudySessionService {
         membershipRepository.findBySession_IdAndUser_Id(sessionId, userId).ifPresent(m -> {
             throw new IllegalArgumentException("You already have a membership for this session");
         });
+        requireRoomForOneOnOne(session);
 
         SessionMembership membership = membershipRepository.save(
                 new SessionMembership(session, user, MembershipRole.MEMBER, MembershipStatus.PENDING));
@@ -153,5 +154,50 @@ public class StudySessionService {
         }
         target.setRole(MembershipRole.ADMIN);
         return toMembershipResponse(membershipRepository.save(target));
+    }
+
+    private void requireRoomForOneOnOne(StudySession session) {
+        if (session.getType() != SessionType.ONE_ON_ONE) return;
+        boolean hasOtherParticipant = membershipRepository.findBySession_Id(session.getId()).stream()
+                .anyMatch(m -> m.getRole() != MembershipRole.HOST && m.getStatus() != MembershipStatus.DECLINED);
+        if (hasOtherParticipant) {
+            throw new IllegalArgumentException("This is a one-on-one session and already has a participant");
+        }
+    }
+
+    public MembershipResponse inviteMember(Long sessionId, Long actingUserId, InviteRequest request) {
+        requireHostOrAdmin(sessionId, actingUserId);
+        StudySession session = sessionRepository.findById(sessionId)
+                .orElseThrow(() -> new IllegalArgumentException("Session not found"));
+        User invitee = userRepository.findByEmail(request.getEmail())
+                .orElseThrow(() -> new IllegalArgumentException("No user found with that email"));
+
+        membershipRepository.findBySession_IdAndUser_Id(sessionId, invitee.getId()).ifPresent(m -> {
+            throw new IllegalArgumentException("That user already has a membership for this session");
+        });
+        requireRoomForOneOnOne(session);
+
+        SessionMembership membership = membershipRepository.save(
+                new SessionMembership(session, invitee, MembershipRole.MEMBER, MembershipStatus.INVITED));
+        notificationService.notifyInvite(invitee.getId(), sessionId, session.getTitle());
+        return toMembershipResponse(membership);
+    }
+
+    public MembershipResponse respondToInvite(Long sessionId, Long userId, boolean accept) {
+        SessionMembership membership = membershipRepository.findBySession_IdAndUser_Id(sessionId, userId)
+                .orElseThrow(() -> new IllegalArgumentException("Invite not found"));
+        if (membership.getStatus() != MembershipStatus.INVITED) {
+            throw new IllegalArgumentException("There is no pending invite to respond to");
+        }
+        membership.setStatus(accept ? MembershipStatus.APPROVED : MembershipStatus.DECLINED);
+        SessionMembership saved = membershipRepository.save(membership);
+        notificationService.notifyInviteResponse(saved.getSession().getHost().getId(), sessionId,
+                saved.getSession().getTitle(), saved.getUser().getName(), accept);
+        return toMembershipResponse(saved);
+    }
+
+    public List<MembershipResponse> listMyInvites(Long userId) {
+        return membershipRepository.findByUser_IdAndStatus(userId, MembershipStatus.INVITED)
+                .stream().map(this::toMembershipResponse).toList();
     }
 }
