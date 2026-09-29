@@ -11,4 +11,5 @@ public interface SessionMembershipRepository extends JpaRepository<SessionMember
     List<SessionMembership> findBySession_IdAndStatus(Long sessionId, MembershipStatus status);
     List<SessionMembership> findByUser_IdAndStatus(Long userId, MembershipStatus status);
     List<SessionMembership> findByUser_Id(Long userId);
+    List<SessionMembership> findBySession_Id(Long sessionId);
 }
