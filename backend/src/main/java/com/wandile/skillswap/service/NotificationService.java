@@ -49,4 +49,18 @@ public class NotificationService {
         send(userId, new NotificationPayload(approved ? "REQUEST_APPROVED" : "REQUEST_DECLINED",
                 message, java.util.Map.of("sessionId", sessionId)));
     }
+
+    public void notifyInvite(Long userId, Long sessionId, String sessionTitle) {
+        send(userId, new NotificationPayload("SESSION_INVITE",
+                "You've been invited to join \"" + sessionTitle + "\"",
+                java.util.Map.of("sessionId", sessionId)));
+    }
+
+    public void notifyInviteResponse(Long hostId, Long sessionId, String sessionTitle, String userName, boolean accepted) {
+        String message = accepted
+                ? userName + " accepted your invite to \"" + sessionTitle + "\""
+                : userName + " declined your invite to \"" + sessionTitle + "\"";
+        send(hostId, new NotificationPayload(accepted ? "INVITE_ACCEPTED" : "INVITE_DECLINED",
+                message, java.util.Map.of("sessionId", sessionId)));
+    }
 }
