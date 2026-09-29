@@ -1,6 +1,7 @@
 package com.wandile.skillswap.service;
 
 import com.wandile.skillswap.dto.CreateSessionRequest;
+import com.wandile.skillswap.dto.InviteRequest;
 import com.wandile.skillswap.dto.MembershipResponse;
 import com.wandile.skillswap.dto.SessionResponse;
 import com.wandile.skillswap.model.*;
