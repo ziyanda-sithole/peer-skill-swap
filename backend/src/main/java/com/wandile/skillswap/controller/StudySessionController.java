@@ -105,4 +105,24 @@ public class StudySessionController {
     public ResponseEntity<List<MembershipResponse>> myInvites(@RequestParam Long userId) {
         return ResponseEntity.ok(sessionService.listMyInvites(userId));
     }
+
+    @DeleteMapping("/{sessionId}")
+    public ResponseEntity<Void> delete(@PathVariable Long sessionId, @RequestParam Long actingUserId) {
+        sessionService.deleteSession(sessionId, actingUserId);
+        return ResponseEntity.noContent().build();
+    }
+
+    @DeleteMapping("/{sessionId}/members/{userId}")
+    public ResponseEntity<Void> removeMember(@PathVariable Long sessionId, @PathVariable Long userId,
+                                             @RequestParam Long actingUserId) {
+        sessionService.removeMember(sessionId, userId, actingUserId);
+        return ResponseEntity.noContent().build();
+    }
+
+    @PostMapping("/{sessionId}/members")
+    public ResponseEntity<MembershipResponse> addMember(@PathVariable Long sessionId,
+                                                        @RequestParam Long actingUserId,
+                                                        @Valid @RequestBody InviteRequest request) {
+        return ResponseEntity.ok(sessionService.addMemberDirectly(sessionId, actingUserId, request));
+    }
 }
