@@ -63,4 +63,16 @@ public class NotificationService {
         send(hostId, new NotificationPayload(accepted ? "INVITE_ACCEPTED" : "INVITE_DECLINED",
                 message, java.util.Map.of("sessionId", sessionId)));
     }
+
+    public void notifyRemoved(Long userId, Long sessionId, String sessionTitle) {
+        send(userId, new NotificationPayload("REMOVED_FROM_SESSION",
+                "You were removed from \"" + sessionTitle + "\"",
+                java.util.Map.of("sessionId", sessionId)));
+    }
+
+    public void notifyAddedDirectly(Long userId, Long sessionId, String sessionTitle) {
+        send(userId, new NotificationPayload("ADDED_TO_SESSION",
+                "You were added to \"" + sessionTitle + "\"",
+                java.util.Map.of("sessionId", sessionId)));
+    }
 }
