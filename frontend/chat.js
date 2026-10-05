@@ -95,17 +95,61 @@ async function loadMembers() {
     const members = await api('/api/sessions/' + openSession.id + '/members?userId=' + currentUser.id);
     container.replaceChildren();
     const me = members.find((m) => m.userId === currentUser.id);
+    const canManage = me && (me.role === 'HOST' || me.role === 'ADMIN');
     members.forEach((member) => {
       const row = el('div', 'member-row');
       row.appendChild(el('span', null, member.userName));
       row.appendChild(el('span', 'badge role', member.role));
       if (me && me.role === 'HOST' && member.role === 'MEMBER') {
-        const btn = el('button', 'secondary', 'Make admin');
-        btn.onclick = () => promoteMember(member.userId);
-        row.appendChild(btn);
+        const promoteBtn = el('button', 'secondary', 'Make admin');
+        promoteBtn.onclick = () => promoteMember(member.userId);
+        row.appendChild(promoteBtn);
+      }
+      if (canManage && member.role !== 'HOST' && member.userId !== currentUser.id) {
+        const removeBtn = el('button', 'secondary', 'Remove');
+        removeBtn.onclick = () => removeMember(member.userId);
+        row.appendChild(removeBtn);
       }
       container.appendChild(row);
     });
+    if (me && me.role === 'HOST') {
+      container.appendChild(addMemberForm());
+    }
+  } catch (err) {
+    showToast(err.message);
+  }
+}
+
+function addMemberForm() {
+  const form = el('form', 'invite-form');
+  const input = document.createElement('input');
+  input.type = 'email';
+  input.placeholder = 'Add member by email';
+  input.required = true;
+  const btn = el('button', null, 'Add');
+  btn.type = 'submit';
+  form.append(input, btn);
+  form.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    try {
+      await api('/api/sessions/' + openSession.id + '/members?actingUserId=' + currentUser.id, 'POST', {
+        email: input.value,
+      });
+      input.value = '';
+      loadMembers();
+    } catch (err) {
+      showToast(err.message);
+    }
+  });
+  return form;
+}
+
+async function removeMember(userId) {
+  if (!confirm('Remove this member from the session?')) return;
+  try {
+    await api('/api/sessions/' + openSession.id + '/members/' + userId
+      + '?actingUserId=' + currentUser.id, 'DELETE');
+    loadMembers();
   } catch (err) {
     showToast(err.message);
   }

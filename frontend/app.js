@@ -94,7 +94,12 @@ function connectNotifications() {
         if (isOpenChat) return;
         showNotification(payload);
         showToast(payload.message);
-        if (['JOIN_REQUEST', 'REQUEST_APPROVED', 'REQUEST_DECLINED', 'SESSION_INVITE', 'INVITE_ACCEPTED', 'INVITE_DECLINED'].includes(payload.type)) {
+        if (payload.type === 'REMOVED_FROM_SESSION' && openSession
+            && payload.data && payload.data.sessionId === openSession.id) {
+          closeRoom();
+        }
+        if (['JOIN_REQUEST', 'REQUEST_APPROVED', 'REQUEST_DECLINED', 'SESSION_INVITE', 'INVITE_ACCEPTED',
+             'INVITE_DECLINED', 'REMOVED_FROM_SESSION', 'ADDED_TO_SESSION'].includes(payload.type)) {
           loadSessions();
         }
       });

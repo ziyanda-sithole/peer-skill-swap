@@ -65,6 +65,12 @@ function renderMySessions(sessions, membershipBySession) {
       leaveBtn.onclick = () => leaveSession(session.id);
       card.appendChild(leaveBtn);
     }
+
+    if (role === 'HOST') {
+      const deleteBtn = el('button', 'secondary', 'Delete session');
+      deleteBtn.onclick = () => deleteSession(session.id);
+      card.appendChild(deleteBtn);
+    }
     container.appendChild(card);
   });
 }
@@ -210,6 +216,18 @@ async function respondToInvite(sessionId, accept) {
     await api('/api/sessions/' + sessionId + '/invite/' + (accept ? 'accept' : 'decline')
       + '?userId=' + currentUser.id, 'POST');
     loadInvites();
+    loadSessions();
+  } catch (err) {
+    showToast(err.message);
+  }
+}
+
+async function deleteSession(sessionId) {
+  if (!confirm('Delete this session? This only works once everyone else has left.')) return;
+  try {
+    await api('/api/sessions/' + sessionId + '?actingUserId=' + currentUser.id, 'DELETE');
+    if (openSession && openSession.id === sessionId) closeRoom();
+    showToast('Session deleted');
     loadSessions();
   } catch (err) {
     showToast(err.message);
