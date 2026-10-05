@@ -112,3 +112,7 @@ Database and server settings live in `backend/src/main/resources/application.pro
 - [ ] Session management: delete empty sessions, add or remove members by username, admins can remove members and other admins (never the host)
 - [ ] Private messaging: 1:1 and group DMs, replying privately to a session message, member info panel
 - [ ] Automated tests and CI pipeline
+
+---
+
+WTC-JNAVRWC9
