@@ -5,6 +5,7 @@ import com.wandile.skillswap.dto.InviteRequest;
 import com.wandile.skillswap.dto.MembershipResponse;
 import com.wandile.skillswap.dto.SessionResponse;
 import com.wandile.skillswap.model.*;
+import com.wandile.skillswap.repository.ChatMessageRepository;
 import com.wandile.skillswap.repository.SessionMembershipRepository;
 import com.wandile.skillswap.repository.StudySessionRepository;
 import com.wandile.skillswap.repository.UserRepository;
@@ -19,15 +20,18 @@ public class StudySessionService {
     private final SessionMembershipRepository membershipRepository;
     private final UserRepository userRepository;
     private final NotificationService notificationService;
+    private final ChatMessageRepository chatMessageRepository;
 
     public StudySessionService(StudySessionRepository sessionRepository,
                                SessionMembershipRepository membershipRepository,
                                UserRepository userRepository,
-                               NotificationService notificationService) {
+                               NotificationService notificationService,
+                               ChatMessageRepository chatMessageRepository) {
         this.sessionRepository = sessionRepository;
         this.membershipRepository = membershipRepository;
         this.userRepository = userRepository;
         this.notificationService = notificationService;
+        this.chatMessageRepository = chatMessageRepository;
     }
 
     public SessionResponse createSession(Long hostId, CreateSessionRequest request) {
@@ -200,5 +204,51 @@ public class StudySessionService {
     public List<MembershipResponse> listMyInvites(Long userId) {
         return membershipRepository.findByUser_IdAndStatus(userId, MembershipStatus.INVITED)
                 .stream().map(this::toMembershipResponse).toList();
+    }
+
+    public void deleteSession(Long sessionId, Long actingUserId) {
+        StudySession session = sessionRepository.findById(sessionId)
+                .orElseThrow(() -> new IllegalArgumentException("Session not found"));
+        if (!session.getHost().getId().equals(actingUserId)) {
+            throw new IllegalArgumentException("Only the host can delete this session");
+        }
+        boolean hasOtherApprovedMembers = membershipRepository.findBySession_IdAndStatus(sessionId, MembershipStatus.APPROVED)
+                .stream().anyMatch(m -> !m.getUser().getId().equals(actingUserId));
+        if (hasOtherApprovedMembers) {
+            throw new IllegalArgumentException("Remove all other members before deleting the session");
+        }
+        chatMessageRepository.deleteBySession_Id(sessionId);
+        membershipRepository.deleteBySession_Id(sessionId);
+        sessionRepository.delete(session);
+    }
+
+    public void removeMember(Long sessionId, Long targetUserId, Long actingUserId) {
+        requireHostOrAdmin(sessionId, actingUserId);
+        SessionMembership target = membershipRepository.findBySession_IdAndUser_Id(sessionId, targetUserId)
+                .orElseThrow(() -> new IllegalArgumentException("Membership not found"));
+        if (target.getRole() == MembershipRole.HOST) {
+            throw new IllegalArgumentException("The host can't be removed");
+        }
+        StudySession session = target.getSession();
+        membershipRepository.delete(target);
+        notificationService.notifyRemoved(targetUserId, sessionId, session.getTitle());
+    }
+
+    public MembershipResponse addMemberDirectly(Long sessionId, Long actingUserId, InviteRequest request) {
+        StudySession session = sessionRepository.findById(sessionId)
+                .orElseThrow(() -> new IllegalArgumentException("Session not found"));
+        if (!session.getHost().getId().equals(actingUserId)) {
+            throw new IllegalArgumentException("Only the host can add members directly");
+        }
+        User user = userRepository.findByEmail(request.getEmail())
+                .orElseThrow(() -> new IllegalArgumentException("No user found with that email"));
+        membershipRepository.findBySession_IdAndUser_Id(sessionId, user.getId()).ifPresent(m -> {
+            throw new IllegalArgumentException("That user already has a membership for this session");
+        });
+        requireRoomForOneOnOne(session);
+        SessionMembership membership = membershipRepository.save(
+                new SessionMembership(session, user, MembershipRole.MEMBER, MembershipStatus.APPROVED));
+        notificationService.notifyAddedDirectly(user.getId(), sessionId, session.getTitle());
+        return toMembershipResponse(membership);
     }
 }
