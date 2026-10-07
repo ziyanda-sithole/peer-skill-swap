@@ -110,6 +110,16 @@ async function loadMembers() {
         removeBtn.onclick = () => removeMember(member.userId);
         row.appendChild(removeBtn);
       }
+      if (member.userId !== currentUser.id) {
+        const infoBtn = el('button', 'secondary', 'Info');
+        infoBtn.onclick = () => alert(member.userName + '\nRole: ' + member.role
+          + '\nMember since: ' + new Date(member.createdAt).toLocaleDateString());
+        row.appendChild(infoBtn);
+
+        const messageBtn = el('button', 'secondary', 'Message');
+        messageBtn.onclick = () => messageUserById(member.userId);
+        row.appendChild(messageBtn);
+      }
       container.appendChild(row);
     });
     if (me && me.role === 'HOST') {
