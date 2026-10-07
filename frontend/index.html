@@ -65,6 +65,34 @@
         <div id="resourceResults"></div>
     </div>
     <div class="panel">
+        <h2>Messages</h2>
+        <form id="startDirectForm" class="invite-form">
+            <input type="email" id="directEmailInput" placeholder="Message someone by email" required />
+            <button type="submit">Start chat</button>
+        </form>
+        <form id="startGroupForm" class="invite-form">
+            <input type="text" id="groupEmailsInput" placeholder="Emails, comma-separated" required />
+            <button type="submit">Start group chat</button>
+        </form>
+        <div id="conversationsList"></div>
+    </div>
+
+    <div class="panel" id="dmPanel" hidden>
+        <div class="room-header">
+            <h2 id="dmTitle"></h2>
+            <div>
+                <button id="dmLeaveBtn" class="secondary" type="button">Leave</button>
+                <button id="dmCloseBtn" class="secondary" type="button">Close</button>
+            </div>
+        </div>
+        <div id="dmMembers" class="muted"></div>
+        <div id="dmMessages" class="chat-messages"></div>
+        <form id="dmForm" class="chat-form">
+            <input type="text" id="dmInput" placeholder="Type a message" autocomplete="off" maxlength="2000" required />
+            <button type="submit">Send</button>
+        </form>
+    </div>
+    <div class="panel">
         <h2>Host a study session</h2>
         <form id="sessionForm">
             <input type="text" id="sessionTitle" placeholder="Title (e.g. Recursion Study Group)" required />
@@ -107,6 +135,7 @@
 <script src="sessions.js"></script>
 <script src="chat.js"></script>
 <script src="resources.js"></script>
+<script src="messages.js"></script>
 <script src="app.js"></script>
 </body>
 </html>
