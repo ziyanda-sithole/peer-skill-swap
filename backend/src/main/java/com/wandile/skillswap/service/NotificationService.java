@@ -75,4 +75,16 @@ public class NotificationService {
                 "You were added to \"" + sessionTitle + "\"",
                 java.util.Map.of("sessionId", sessionId)));
     }
+
+    public void notifyNewDirectMessage(Long userId, Long conversationId, String senderName, String preview) {
+        send(userId, new NotificationPayload("NEW_DIRECT_MESSAGE",
+                senderName + ": " + preview,
+                java.util.Map.of("conversationId", conversationId)));
+    }
+
+    public void notifyAddedToConversation(Long userId, Long conversationId, String byName) {
+        send(userId, new NotificationPayload("ADDED_TO_CONVERSATION",
+                byName + " added you to a conversation",
+                java.util.Map.of("conversationId", conversationId)));
+    }
 }
