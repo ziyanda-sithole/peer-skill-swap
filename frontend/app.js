@@ -48,6 +48,7 @@ function logout() {
   localStorage.removeItem('skillswapUser');
   if (stompClient) stompClient.deactivate();
   render();
+  closeDm();
 }
 
 function showAuthError(message) {
@@ -91,19 +92,24 @@ function connectNotifications() {
         const payload = JSON.parse(message.body);
         const isOpenChat = payload.type === 'NEW_CHAT_MESSAGE' && openSession
           && payload.data && payload.data.sessionId === openSession.id;
-        if (isOpenChat) return;
+        const isOpenDm = payload.type === 'NEW_DIRECT_MESSAGE' && openConversation
+          && payload.data && payload.data.conversationId === openConversation.id;
+        if (isOpenChat || isOpenDm) return;
+
         showNotification(payload);
         showToast(payload.message);
+
         if (payload.type === 'REMOVED_FROM_SESSION' && openSession
             && payload.data && payload.data.sessionId === openSession.id) {
           closeRoom();
         }
-        if (['JOIN_REQUEST', 'REQUEST_APPROVED', 'REQUEST_DECLINED', 'SESSION_INVITE', 'INVITE_ACCEPTED',
-             'INVITE_DECLINED', 'REMOVED_FROM_SESSION', 'ADDED_TO_SESSION'].includes(payload.type)) {
-          loadSessions();
-        }
+        const sessionRefreshTypes = ['JOIN_REQUEST', 'REQUEST_APPROVED', 'REQUEST_DECLINED', 'SESSION_INVITE',
+          'INVITE_ACCEPTED', 'INVITE_DECLINED', 'REMOVED_FROM_SESSION', 'ADDED_TO_SESSION'];
+        if (sessionRefreshTypes.includes(payload.type)) loadSessions();
+        if (['NEW_DIRECT_MESSAGE', 'ADDED_TO_CONVERSATION'].includes(payload.type)) loadConversations();
       });
       subscribeToChat();
+      subscribeToDm();
     },
   });
   stompClient.activate();
@@ -122,6 +128,7 @@ function render() {
     logoutBtn.onclick = logout;
     userBar.append('Logged in as ', el('strong', null, currentUser.name), ' ', logoutBtn);
     loadSessions();
+    loadConversations();
     connectNotifications();
   } else {
     authSection.hidden = false;
@@ -129,6 +136,8 @@ function render() {
     document.getElementById('notifications').replaceChildren();
     document.getElementById('boardList').replaceChildren();
     document.getElementById('mySessionsList').replaceChildren();
+    document.getElementById('conversationsList').replaceChildren();
+    document.getElementById('dmPanel').hidden = true;
   }
 }
 
