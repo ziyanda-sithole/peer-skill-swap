@@ -22,19 +22,22 @@ public class ConversationService {
     private final UserRepository userRepository;
     private final SimpMessagingTemplate messagingTemplate;
     private final NotificationService notificationService;
+    private final AiStudyPartnerService aiStudyPartnerService;
 
     public ConversationService(ConversationRepository conversationRepository,
                                ConversationParticipantRepository participantRepository,
                                DirectMessageRepository messageRepository,
                                UserRepository userRepository,
                                SimpMessagingTemplate messagingTemplate,
-                               NotificationService notificationService) {
+                               NotificationService notificationService,
+                               AiStudyPartnerService aiStudyPartnerService) {
         this.conversationRepository = conversationRepository;
         this.participantRepository = participantRepository;
         this.messageRepository = messageRepository;
         this.userRepository = userRepository;
         this.messagingTemplate = messagingTemplate;
         this.notificationService = notificationService;
+        this.aiStudyPartnerService = aiStudyPartnerService;
     }
 
     public ConversationResponse startDirectConversation(Long userId, Long otherUserId) {
@@ -138,6 +141,7 @@ public class ConversationService {
                 notificationService.notifyNewDirectMessage(p.getUser().getId(), conversationId, sender.getName(), preview);
             }
         }
+        aiStudyPartnerService.replyIfAddressed(conversationId, senderId);
         return response;
     }
 
