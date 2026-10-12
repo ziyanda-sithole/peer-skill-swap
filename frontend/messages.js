@@ -167,3 +167,13 @@ document.getElementById('startGroupForm').addEventListener('submit', async (e) =
     showToast(err.message);
   }
 });
+
+document.getElementById('aiChatBtn').addEventListener('click', async () => {
+  try {
+    const conversation = await api('/api/ai/start?userId=' + currentUser.id, 'POST');
+    loadConversations();
+    openDm(conversation);
+  } catch (err) {
+    showToast(err.message);
+  }
+});

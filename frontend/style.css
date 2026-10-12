@@ -182,3 +182,5 @@ button.secondary:hover { background: var(--border-soft); }
 .invite-form input { flex: 1; }
 
 .conversation-row { display: flex; align-items: center; gap: 8px; margin-bottom: 6px; }
+
+.chat-message div { white-space: pre-wrap; }
