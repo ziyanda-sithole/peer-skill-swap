@@ -1,6 +1,6 @@
 const BACKEND_URL = (location.hostname === 'localhost' || location.hostname === '127.0.0.1')
   ? 'http://localhost:8080'
-  : 'https://peer-skill-swap.onrender.com';
+  : (location.hostname.endsWith('.cloudfront.net') ? '' : 'https://peer-skill-swap.onrender.com');
 
 let currentUser = JSON.parse(localStorage.getItem('skillswapUser') || 'null');
 let stompClient = null;
