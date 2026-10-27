@@ -10,7 +10,7 @@ public class CorsConfig implements WebMvcConfigurer {
     @Override
     public void addCorsMappings(CorsRegistry registry) {
         registry.addMapping("/api/**")
-                .allowedOrigins("https://peer-skill-swap-1.onrender.com", "http://localhost:5500", "https://d2s0xm86wc04ze.cloudfront.net")
+                .allowedOrigins("http://localhost:5500", "https://d2s0xm86wc04ze.cloudfront.net")
                 .allowedMethods("GET", "POST", "PATCH", "PUT", "DELETE", "OPTIONS")
                 .allowedHeaders("*");
     }
