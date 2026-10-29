@@ -6,6 +6,8 @@ A peer-learning platform where students host study sessions, chat live, message 
 
 > The demo runs on AWS using trial credits, so it may occasionally be switched off to save them. There are no shared demo logins: register your own account to try it.
 
+**Video walkthrough:** *(link will be added after recording)*
+
 **Peer Skill-Swap: Dashboard**
 ![screenshot dashboard.png](docs/screenshot%20dashboard.png)
 
@@ -77,6 +79,8 @@ One-on-one sessions allow a single participant besides the host.
 | Hosting | AWS (S3, CloudFront, EC2) |
 
 ## Architecture
+
+![Architecture diagram](docs/architecture.jpg)
 
 ```mermaid
 flowchart LR
@@ -242,7 +246,9 @@ To ship an update to the AWS version: for backend changes, pull the new code on 
 
 ## Security and privacy notes
 
-- **Identity is not token-based yet.** The API trusts the user id sent in the query string, so anyone who can reach the API could act as another user. This is fine for a learning project, but the platform should not hold sensitive data until real authentication is added.
+> [!CAUTION]
+> **Identity is not token-based yet.** The API trusts the user id in the query string. Anyone who can reach the API endpoint could act as any user. Do not store sensitive personal data on this platform until JWT authentication is in place.
+
 - **Messages are stored in plain text** in the database and are not end-to-end encrypted.
 - **AI messages leave the platform.** Anything sent to the study partner is processed by a third-party provider, and free tiers may use submitted content to improve their products. The bot's greeting tells users not to share personal information.
 - API keys live only on the server and are never exposed to the browser.
@@ -253,6 +259,19 @@ To ship an update to the AWS version: for backend changes, pull the new code on 
 - The AI usage limits are counted in memory and reset when the server restarts. The providers' own free-tier quotas are the hard limit.
 - There is no meaningful automated test suite or CI pipeline yet.
 - The AWS deployment is a single server running on trial credits, with no database backups. Treat its data as disposable.
+
+## Lessons learned
+
+Three engineering problems came up during the build that are worth documenting.
+
+**1. Hibernate and live enum constraints**
+Adding a new value to a Java enum and restarting the backend broke the live database. Hibernate's `ddl-auto=update` creates new columns and tables but does not alter existing `CHECK` constraints on enum columns — so the INSERT was rejected. The fix was a manual `ALTER TABLE ... DROP CONSTRAINT ...; ALTER TABLE ... ADD CONSTRAINT ...;` on the running database. The lesson: use a proper migration tool (Flyway or Liquibase) from day one so every schema change is versioned and repeatable.
+
+**2. CORS errors behind CloudFront**
+Serving the frontend from S3 and the API from EC2 meant the browser was making cross-origin requests, which the browser blocks unless the server sends the right `Access-Control-Allow-Origin` header. The fix was to route both the static pages and `/api/*` and `/ws/*` through a single CloudFront distribution, so the browser only ever speaks to one origin. CloudFront forwards the right paths to the right origin (S3 or EC2) behind the scenes.
+
+**3. Free AI quota exhaustion**
+Free-tier LLM API quotas are small and reset daily. Rather than have the AI feature silently fail, the backend was built with a `LlmProvider` interface and two implementations (Groq and Gemini). If the primary provider fails or returns a rate-limit error, the service retries automatically on the fallback. Per-user and per-day reply limits add a second layer of protection.
 
 ## Roadmap
 
