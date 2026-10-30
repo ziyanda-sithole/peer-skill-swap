@@ -3,6 +3,7 @@ package com.wandile.skillswap.repository;
 import com.wandile.skillswap.model.MembershipStatus;
 import com.wandile.skillswap.model.SessionMembership;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.transaction.annotation.Transactional;
 import java.util.List;
 import java.util.Optional;
 
@@ -12,5 +13,6 @@ public interface SessionMembershipRepository extends JpaRepository<SessionMember
     List<SessionMembership> findByUser_IdAndStatus(Long userId, MembershipStatus status);
     List<SessionMembership> findByUser_Id(Long userId);
     List<SessionMembership> findBySession_Id(Long sessionId);
+    @Transactional
     void deleteBySession_Id(Long sessionId);
 }

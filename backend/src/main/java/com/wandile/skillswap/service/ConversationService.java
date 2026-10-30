@@ -8,12 +8,14 @@ import com.wandile.skillswap.repository.DirectMessageRepository;
 import com.wandile.skillswap.repository.UserRepository;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.time.Instant;
 import java.util.List;
 import java.util.Optional;
 
 @Service
+@Transactional
 public class ConversationService {
 
     private final ConversationRepository conversationRepository;

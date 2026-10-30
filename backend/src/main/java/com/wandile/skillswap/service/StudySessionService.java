@@ -10,10 +10,12 @@ import com.wandile.skillswap.repository.SessionMembershipRepository;
 import com.wandile.skillswap.repository.StudySessionRepository;
 import com.wandile.skillswap.repository.UserRepository;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
 @Service
+@Transactional
 public class StudySessionService {
 
     private final StudySessionRepository sessionRepository;
