@@ -6,7 +6,7 @@ A peer-learning platform where students host study sessions, chat live, message 
 
 > The demo runs on AWS using trial credits, so it may occasionally be switched off to save them. There are no shared demo logins: register your own account to try it.
 
-**Video walkthrough:** *(link will be added after recording)*
+**Video walkthrough:** https://youtu.be/H9MX-utfl7I?si=hWRLwmuIuiYczDwg
 
 **Peer Skill-Swap: Dashboard**
 ![screenshot dashboard.png](docs/screenshot%20dashboard.png)
